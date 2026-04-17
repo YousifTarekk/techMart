@@ -30,7 +30,7 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group"
 
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -43,6 +43,7 @@ import Link from "next/link"
 export default function Signin() {
   const form = useForm();
   const router = useRouter();
+  const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = React.useState(false);
 
 
@@ -55,13 +56,15 @@ export default function Signin() {
     });
     console.log(res);
     if (res?.ok) {
-      window.location.href = "/";
+      // Wait a bit for the session to be updated, then navigate
+      await update();
+      setTimeout(() => {
+        router.push("/");
+      }, 500);
     } else {
       setIsLoading(false);
       toast.error("Invalid username or password");
     }
-
-
   }
 
 
