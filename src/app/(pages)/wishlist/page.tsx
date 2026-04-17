@@ -11,7 +11,7 @@ export default async function Wishlist() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/signin");
+    return null;
   }
 
   const token = (session.user as any)?.token as string;
