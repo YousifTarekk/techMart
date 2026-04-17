@@ -1,9 +1,9 @@
-import { Product } from "../src/interfaces/Product";
-import { Brand } from "../src/interfaces/Brand";
-import { Category } from "../src/interfaces/Category";
-import { ResponseType } from "../types/ResponseType";
-import { AddToCartResponse } from "@/interfaces/cart/AddToCartResponse";
-import { SignInResponse } from '../types/SigninResponse';
+import { Product } from "@/interfaces/Product";
+import { Brand } from "@/interfaces/Brand";
+import { Category } from "@/interfaces/Category";
+import type { ResponseType } from "../types/ResponseType";
+import type { AddToCartResponse } from "@/interfaces/cart/AddToCartResponse";
+import type { SignInResponse } from '../types/SigninResponse';
 
 class ApiService {
   #Base_Url = process.env.NEXT_PUBLIC_Base_Url;
@@ -131,10 +131,10 @@ class ApiService {
         : "http://localhost:3000";
     const res = await fetch(
       this.#Base_Url +
-        "/api/v1/orders/checkout-session/" +
-        cartId +
-        "?url=" +
-        origin,
+      "/api/v1/orders/checkout-session/" +
+      cartId +
+      "?url=" +
+      origin,
       {
         method: "POST",
         headers: headers,
@@ -153,6 +153,15 @@ class ApiService {
     });
     const data = await res.json();
     return data;
+  }
+
+  async signup(data: any): Promise<any> {
+    const res = await fetch(this.#Base_Url + "/api/v1/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: this.#headers,
+    });
+    return await res.json();
   }
 
   // ──────────── Wishlist ────────────

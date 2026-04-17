@@ -1,21 +1,53 @@
-import React from 'react'
-import apiService from '../../../../services/api'
+'use client'
+
+import React, { useEffect } from 'react'
+import apiService from '@services/api'
 import ShoppingCart from './InnerCart'
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
-import { authOptions } from '../../api/auth/[...nextauth]/authOptions'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import PageLoader from '@/components/ui/PageLoader'
+import { useState } from 'react'
 
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+export default function Cart() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [cartData, setCartData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default async function Cart() {
-  const session = await getServerSession(authOptions);
+  useEffect(() => {
+    if (status === 'loading') {
+      return;
+    }
 
-  if (!session) {
-    redirect('/auth/signin');
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (status === 'authenticated' && session?.user?.token) {
+      fetchCartData();
+    }
+  }, [status, session]);
+
+  const fetchCartData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await apiService.getCart(session?.user?.token as string);
+      setCartData(data);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (status === 'loading' || isLoading) {
+    return <PageLoader />;
   }
 
-  const cartData = await apiService.getCart(session.user?.token as string);
+  if (!session) {
+    return null;
+  }
 
   return (
     <div>
